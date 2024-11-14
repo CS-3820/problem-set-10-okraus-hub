@@ -108,8 +108,12 @@ subst x m (Var y)
   | otherwise = Var y
 subst x m (Lam y n) = Lam y (substUnder x m y n)
 subst x m (App n1 n2) = App (subst x m n1) (subst x m n2)
-subst x m n = undefined
-
+subst x m (Store n) = Store (subst x m n)
+subst x m (Throw n) = Throw (subst x m n)
+subst x m Recall = Recall
+subst x m (Catch n y handler) 
+  | x == y    = Catch (subst x m n) y handler 
+  | otherwise = Catch (subst x m n) y (subst x m handler)
 {-------------------------------------------------------------------------------
 
 Problems 3 - 10: Small-step semantics
