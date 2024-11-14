@@ -20,6 +20,7 @@ substTests1 = [ (Plus (Const 1) (Store (Plus (Const 2) (Var "x"))), "x", Const 3
               , (App (Const 1) (Store (Var "x")), "x", Const 14)
               , (Plus (Const 1) (Store (Plus (Var "x") Recall)), "x", Const 3) ]
 
+substResults1 :: [Expr]
 substResults1 = [Plus (Const 1) (Store (Plus (Const 2) (Const 3))),Plus (Const 1) (Store (Plus (Const 2) (Var "y"))),App (Const 1) (Store (Const 14)),Plus (Const 1) (Store (Plus (Const 3) Recall))]
 
 substTests2 = [ (Plus (Const 1) (Catch (Plus (Const 2) (Throw (Var "x"))) "y" (Plus (Var "x") (Var "y"))), "x", Const 1)
