@@ -106,14 +106,16 @@ subst x m (Plus n1 n2) = Plus (subst x m n1) (subst x m n2)
 subst x m (Var y) 
   | x == y = m
   | otherwise = Var y
-subst x m (Lam y n) = Lam y (substUnder x m y n)
+subst x m (Lam y n)
+  | x == y    = Lam y n 
+  | otherwise = Lam y (substUnder x m y n)
 subst x m (App n1 n2) = App (subst x m n1) (subst x m n2)
 subst x m (Store n) = Store (subst x m n)
 subst x m (Throw n) = Throw (subst x m n)
 subst x m Recall = Recall
-subst x m (Catch n y handler) 
-  | x == y    = Catch (subst x m n) y handler 
-  | otherwise = Catch (subst x m n) y (subst x m handler)
+subst x m (Catch n y hand) 
+  | x == y    = Catch (subst x m n) y hand 
+  | otherwise = Catch (subst x m n) y (subst x m hand)
 {-------------------------------------------------------------------------------
 
 Problems 3 - 10: Small-step semantics
