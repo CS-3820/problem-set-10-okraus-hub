@@ -106,15 +106,13 @@ subst x m (Plus n1 n2) = Plus (subst x m n1) (subst x m n2)
 subst x m (Var y) 
   | x == y = m
   | otherwise = Var y
-subst x m (Lam y n)
-  | x == y    = Lam y n 
-  | otherwise = Lam y (substUnder x m y n)
+subst x m (Lam y n) = Lam y (substUnder x m y n)
 subst x m (App n1 n2) = App (subst x m n1) (subst x m n2)
 subst x m (Store n) = Store (subst x m n)
 subst x m (Throw n) = Throw (subst x m n)
 subst x m Recall = Recall
 subst x m (Catch n y hand) 
-  | x == y    = Catch (subst x m n) y hand 
+  | x == y    = Catch (subst x m n) y hand
   | otherwise = Catch (subst x m n) y (subst x m hand)
 {-------------------------------------------------------------------------------
 
@@ -208,7 +206,60 @@ bubble; this won't *just* be `Throw` and `Catch.
 -------------------------------------------------------------------------------}
 
 smallStep :: (Expr, Expr) -> Maybe (Expr, Expr)
-smallStep = undefined
+smallStep (prog, acc) = case prog of
+--PLUS
+  Plus (Const x)(Const y) -> Just (Const (x+y), acc)
+  Plus n1 (Const x)      -> case smallStep (n1, acc) of
+                              Just (n1', acc') -> Just (Plus n1' (Const x), acc')
+                              Nothing          -> Nothing
+  Plus (Const x) n2      -> case smallStep (n2, acc) of
+                              Just (n2', acc') -> Just (Plus (Const x) n2', acc')
+                              Nothing          -> Nothing                 
+  Plus n1 n2             -> case smallStep (n1, acc) of
+                              Just (n1', acc') -> Just (Plus n1' n2, acc')
+                              Nothing          -> case smallStep (n2, acc) of
+                                                    Just (n2', acc') -> Just (Plus n1 n2', acc')
+                                                    Nothing          -> Nothing 
+--APPLICATION
+  App (Lam x body) arg  | isValue arg -> Just (subst x arg body, acc)
+  App x arg             | isValue arg -> case smallStep (x, acc) of
+                            Just (x', acc') -> Just (App x' arg, acc')
+                            Nothing         -> Nothing
+                        | otherwise   -> case smallStep (arg, acc) of
+                            Just (arg', acc') -> Just (App x arg', acc')
+                            Nothing           -> Nothing
+--VARIABLE
+  Var x       -> Nothing 
+--LAMBDA
+  Lam _ _     -> Nothing
+--STORE
+  Store x     -> case smallStep (x, acc) of
+                  Just (x', acc') -> Just (Store x', acc')
+                  Nothing         -> Nothing
+--RECALL
+  Recall      -> Just (Const (grabAcc acc), acc)
+--THROW
+  Throw x     -> case smallStep (x, acc) of
+                Just (x', acc') -> Just (Throw x', acc')
+--CATCH
+  Catch x y n -> case smallStep (x, acc) of
+                  Just (x', acc') -> Just (Catch x' y n, acc')
+                  Nothing         -> case x of
+                                      Throw z -> Just (subst y z n, acc)
+                                      _       -> Nothing
+  _ -> Nothing 
+--Grab Integer from Expr
+  where 
+    grabAcc :: Expr -> Int 
+    grabAcc (Const x) = x
+    grabAcc _ = 0
+
+
+
+            
+
+
+
 
 steps :: (Expr, Expr) -> [(Expr, Expr)]
 steps s = case smallStep s of
