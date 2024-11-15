@@ -250,7 +250,7 @@ smallStep (prog, acc) = case prog of
                   Just (x', acc') -> Just (Catch x' y n, acc')
                   Nothing         -> case x of
                                       Throw z -> Just (subst y z n, acc)
-                                      _       -> Nothing
+                                      _       -> Just (x, acc)
   _ -> Nothing 
 --Grab Integer from Expr
   where 
