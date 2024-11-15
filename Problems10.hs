@@ -109,10 +109,10 @@ subst x m (Var y)
 subst x m (Lam y n) = Lam y (substUnder x m y n)
 subst x m (App n1 n2) = App (subst x m n1) (subst x m n2)
 subst x m (Store n) = Store (subst x m n)
-subst x m (Throw n) = Throw (subst x m n)
 subst x m Recall = Recall
+subst x m (Throw n) = Throw (subst x m n)
 subst x m (Catch n y hand) 
-  | x == y    = Catch (subst x m n) y hand
+  | x == y    = Catch (subst x m n) y hand 
   | otherwise = Catch (subst x m n) y (subst x m hand)
 {-------------------------------------------------------------------------------
 
@@ -229,7 +229,7 @@ smallStep (prog, acc) = case prog of
                             Just (arg', acc') -> Just (App x arg', acc')
                             Nothing           -> Nothing
 --VARIABLE
-  Var x       -> Nothing 
+  Var _       -> Nothing 
 --LAMBDA
   Lam _ _     -> Nothing
 --STORE
