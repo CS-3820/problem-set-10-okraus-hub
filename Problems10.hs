@@ -237,7 +237,7 @@ smallStep (prog, acc) = case prog of
   Lam _ _     -> Nothing
 --STORE
   Store x -> case smallStep (x, acc) of
-              Just (x', acc') -> Just (Recall, acc') 
+              Just (x', acc') -> Just (Recall, x') 
               Nothing         -> Just (Recall, acc)
 --RECALL
   Recall -> Just (Const (grabAcc acc), acc)
