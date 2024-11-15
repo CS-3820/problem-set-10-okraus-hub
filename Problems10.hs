@@ -235,12 +235,13 @@ smallStep (prog, acc) = case prog of
 --STORE
   Store x     -> case smallStep (x, acc) of
                   Just (x', acc') -> Just (Store x', acc')
-                  Nothing         -> Nothing
+                  Nothing         -> Just (Recall, acc)
 --RECALL
   Recall      -> Just (Const (grabAcc acc), acc)
 --THROW
   Throw x     -> case smallStep (x, acc) of
-                Just (x', acc') -> Just (Throw x', acc')
+                  Just (x', acc') -> Just (Throw x', acc')
+                  Nothing         -> Just (Throw x, acc)
 --CATCH
   Catch x y n -> case smallStep (x, acc) of
                   Just (x', acc') -> Just (Catch x' y n, acc')
@@ -253,12 +254,6 @@ smallStep (prog, acc) = case prog of
     grabAcc :: Expr -> Int 
     grabAcc (Const x) = x
     grabAcc _ = 0
-
-
-
-            
-
-
 
 
 steps :: (Expr, Expr) -> [(Expr, Expr)]
