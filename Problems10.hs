@@ -236,15 +236,15 @@ smallStep (prog, acc) = case prog of
 --LAMBDA
   Lam _ _     -> Nothing
 --STORE
-  Store x     -> case smallStep (x, acc) of
-                  Just (x', acc') -> Just (Store x', acc)
-                  Nothing         -> Just (Recall, acc)
+  Store x -> case smallStep (x, acc) of
+              Just (x', acc') -> Just (Recall, acc') 
+              Nothing         -> Just (Recall, acc)
 --RECALL
-  Recall      -> Just (Const (grabAcc acc), acc)
+  Recall -> Just (Const (grabAcc acc), acc)
 --THROW
-  Throw x     -> case smallStep (x, acc) of
-                  Just (x', acc') -> Just (Throw x', acc')
-                  Nothing         -> Just (Throw x, acc)
+  Throw x -> case smallStep (x, acc) of
+              Just (x', acc') -> Just (Throw x', acc')
+              Nothing -> Just (Throw x, acc)
 --CATCH
   Catch x y n -> case smallStep (x, acc) of
                   Just (x', acc') -> Just (Catch x' y n, acc')
