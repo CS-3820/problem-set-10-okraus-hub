@@ -222,7 +222,7 @@ smallStep (prog, acc) = case prog of
                                                     Nothing          -> Nothing 
 --APPLICATION
   App (Lam x body) arg  | isValue arg -> Just (subst x arg body, acc)
-  App (Lam x body) arg -> case smallStep (arg, acc) of
+                        | otherwise   -> case smallStep (arg, acc) of
                             Just (arg', acc') -> Just (App (Lam x body) arg', acc')
                             Nothing           -> Nothing
   App x arg             | isValue arg -> case smallStep (x, acc) of
@@ -237,7 +237,7 @@ smallStep (prog, acc) = case prog of
   Lam _ _     -> Nothing
 --STORE
   Store x     -> case smallStep (x, acc) of
-                  Just (x', acc') -> Just (Store x', acc')
+                  Just (x', acc') -> Just (Store x', acc)
                   Nothing         -> Just (Recall, acc)
 --RECALL
   Recall      -> Just (Const (grabAcc acc), acc)
